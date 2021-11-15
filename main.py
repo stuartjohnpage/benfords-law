@@ -86,9 +86,30 @@ def main():
     if chi_square_test(data_count, expected_counts):
         print("Observed distribution matches expected distribution")
     else:
-        print("Observved distribtuion does not match expected.", file=sys.stderr)
+        print("Observed distribution does not match expected.", file=sys.stderr)
 
     bar_chart(data_pct)
+
+
+def data_wrangler():
+    while True:
+        filename = input("\nPlease enter the name of the file you would like to wrangle ")
+        try:
+            data_list = load_data(filename)
+        except IOError as e:
+            print("{}. Try again.".format(e), file=sys.stderr)
+        else:
+            break
+    wrangled_data = []
+
+    for i in range(0, len(data_list), 3 ):
+        wrangled_data.append(data_list[i])
+    print(wrangled_data)
+
+    with open('democrat_jeff_votes.txt', 'w') as f:
+        for item in wrangled_data:
+            f.write("%s\n" % item)
+
 
 if __name__ == '__main__':
     main()
