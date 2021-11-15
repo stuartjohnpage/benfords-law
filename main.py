@@ -22,7 +22,9 @@ def count_first_digits(data_list):
             print("Sample must be integers. Exiting...", file=sys.stderr)
             sys.exit(1)
         first_digits[sample[0]] += 1
+    first_digits.pop("0", None)
     data_count = [v for (k, v) in sorted(first_digits.items())]
+
     total_count = sum(data_count)
     data_pct = [(i / total_count) * 100 for i in data_count]
     return data_count, data_pct, total_count
@@ -92,6 +94,10 @@ def main():
     sys.exit(0)
 
 
+if __name__ == '__main__':
+    main()
+
+
 def data_wrangler():
     while True:
         filename = input("\nPlease enter the name of the file you would like to wrangle ")
@@ -107,10 +113,6 @@ def data_wrangler():
         wrangled_data.append(data_list[i])
     print(wrangled_data)
 
-    with open('wrangled_data.txt', 'w') as f:
+    with open('orleans_2008_votes.txt', 'w') as f:
         for item in wrangled_data:
             f.write("%s\n" % item)
-
-
-if __name__ == '__main__':
-    main()
