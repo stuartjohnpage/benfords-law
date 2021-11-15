@@ -89,6 +89,7 @@ def main():
         print("Observed distribution does not match expected.", file=sys.stderr)
 
     bar_chart(data_pct)
+    sys.exit(0)
 
 
 def data_wrangler():
@@ -106,7 +107,7 @@ def data_wrangler():
         wrangled_data.append(data_list[i])
     print(wrangled_data)
 
-    with open('democrat_jeff_votes.txt', 'w') as f:
+    with open('wrangled_data.txt', 'w') as f:
         for item in wrangled_data:
             f.write("%s\n" % item)
 
