@@ -116,12 +116,9 @@ def main():
     second_data_count, second_data_pct, second_total_count = count_second_digits(data_list)
 
     first_expected_counts = get_expected_counts(total_count, "first")
-    second_expected_counts = get_expected_counts(second_total_count, "second")
+
     print("\nObserved first counts = {}".format(data_count))
     print("Expected counts = {}".format(first_expected_counts), "\n")
-
-    print("\nObserved second counts = {}".format(second_data_count))
-    print("Expected counts = {}".format(second_expected_counts), "\n")
 
     print("First Digit Probabilities")
     for i in range(1, 10):
@@ -132,17 +129,22 @@ def main():
     else:
         print("Observed distribution does not match expected.", file=sys.stderr)
 
-    print("Second Digit Probabilities")
-    for i in range(0, 10):
-        print("{}: observed: {:.3f} expected: {:.3f}".
-              format(i, second_data_pct[i - 1] / 100, BENFORD_SECOND[i - 1] / 100))
-    if chi_square_test(second_data_count, second_expected_counts, "second"):
-        print("Observed distribution matches expected distribution")
-    else:
-        print("Observed distribution does not match expected.", file=sys.stderr)
-
+    # second_expected_counts = get_expected_counts(second_total_count, "second")
+    # print("\nObserved second counts = {}".format(second_data_count))
+    # print("Expected counts = {}".format(second_expected_counts), "\n")
+    #
+    # print("Second Digit Probabilities")
+    # for i in range(0, 10):
+    #     print("{}: observed: {:.3f} expected: {:.3f}".
+    #           format(i, second_data_pct[i - 1] / 100, BENFORD_SECOND[i - 1] / 100))
+    # if chi_square_test(second_data_count, second_expected_counts, "second"):
+    #     print("Observed distribution matches expected distribution")
+    # else:
+    #     print("Observed distribution does not match expected.", file=sys.stderr)
+    #
+    # bar_chart(second_data_pct, "second")
     bar_chart(data_pct, "first")
-    bar_chart(second_data_pct, "second")
+
     sys.exit(0)
 
 
