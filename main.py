@@ -3,7 +3,8 @@ import math
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
-BENFORD = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
+BENFORD_FIRST = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
+BENFORD_SECOND = [11.9, 11.3, 10.8, 10.4, 10.0, 9.67, 9.3, 9.0, 8.7, 8.5]
 
 def load_data(filename):
     """Open a text file & return a list of strings"""
@@ -29,18 +30,50 @@ def count_first_digits(data_list):
     data_pct = [(i / total_count) * 100 for i in data_count]
     return data_count, data_pct, total_count
 
-def get_expected_counts(total_count):
-    return [round(p * total_count / 100) for p in BENFORD]
+def count_second_digits(data_list):
+    second_digits = defaultdict(int)
+    for sample in data_list:
+        if sample == '':
+            continue
+        try:
+            int(sample)
+        except ValueError as e:
+            print(e, file=sys.stderr)
+            print("Sample must be integers. Exiting...", file=sys.stderr)
+            sys.exit(1)
+        second_digits[sample[1]] += 1
+    data_count = [v for (k, v) in sorted(second_digits.items())]
 
-def chi_square_test(data_count, expected_counts):
-    chi_square_stat = 0
-    for data, expected in zip(data_count, expected_counts):
-        chi_square = math.pow(data - expected, 2)
-        chi_square_stat += chi_square / expected
-    print("\nChi Squared Test Statistic = {:.3}".format(chi_square_stat))
-    print("Critical value at a P-value of 0.05 is 15.51.")
+    total_count = sum(data_count)
+    data_pct = [(i / total_count) * 100 for i in data_count]
+    return data_count, data_pct, total_count
 
-    return chi_square_stat < 15.51
+
+def get_expected_counts(total_count, method):
+    if method == 'first':
+        return [round(p * total_count / 100) for p in BENFORD_FIRST]
+    else:
+        return [round(p * total_count / 100) for p in BENFORD_SECOND]
+
+def chi_square_test(data_count, expected_counts, method):
+    if method == "first":
+        chi_square_stat = 0
+        for data, expected in zip(data_count, expected_counts):
+            chi_square = math.pow(data - expected, 2)
+            chi_square_stat += chi_square / expected
+        print("\nChi Squared Test Statistic = {:.3}".format(chi_square_stat))
+        print("Critical value at a P-value of 0.05 is 15.51.")
+
+        return chi_square_stat < 15.51
+    else:
+        chi_square_stat = 0
+        for data, expected in zip(data_count, expected_counts):
+            chi_square = math.pow(data - expected, 2)
+            chi_square_stat += chi_square / expected
+        print("\nChi Squared Test Statistic = {:.3}".format(chi_square_stat))
+        print("Critical value at a P-value of 0.05 is 16.92.")
+
+        return chi_square_stat < 16.92
 
 def bar_chart(data_pct):
     fig, ax = plt.subplots()
@@ -59,7 +92,7 @@ def bar_chart(data_pct):
         ax.text(rect.get_x() + rect.get_width()/2, height,
                 '{:0.1f}'.format(height), ha='center', va='bottom', fontsize=13)
 
-    ax.scatter(index, BENFORD, s=150, c='red', zorder=2, label='Benford')
+    ax.scatter(index, BENFORD_FIRST, s=150, c='red', zorder=2, label='Benford')
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -77,15 +110,30 @@ def main():
         else:
             break
     data_count, data_pct, total_count = count_first_digits(data_list)
-    expected_counts = get_expected_counts(total_count)
-    print("\nObserved counts = {}".format(data_count))
-    print("Expected counts = {}".format(expected_counts), "\n")
+    second_data_count, second_data_pct, second_total_count = count_second_digits(data_list)
+
+    first_expected_counts = get_expected_counts(total_count, "first")
+    second_expected_counts = get_expected_counts(second_total_count, "second")
+    print("\nObserved first counts = {}".format(data_count))
+    print("Expected counts = {}".format(first_expected_counts), "\n")
+
+    print("\nObserved second counts = {}".format(second_data_count))
+    print("Expected counts = {}".format(second_expected_counts), "\n")
 
     print("First Digit Probabilities")
     for i in range(1, 10):
         print("{}: observed: {:.3f} expected: {:.3f}".
-              format(i, data_pct[i - 1]/100, BENFORD[i - 1]/100))
-    if chi_square_test(data_count, expected_counts):
+              format(i, data_pct[i - 1] / 100, BENFORD_FIRST[i - 1] / 100))
+    if chi_square_test(data_count, first_expected_counts, "first"):
+        print("Observed distribution matches expected distribution")
+    else:
+        print("Observed distribution does not match expected.", file=sys.stderr)
+
+    print("Second Digit Probabilities")
+    for i in range(0, 10):
+        print("{}: observed: {:.3f} expected: {:.3f}".
+              format(i, second_data_pct[i - 1] / 100, BENFORD_SECOND[i - 1] / 100))
+    if chi_square_test(second_data_count, second_expected_counts, "second"):
         print("Observed distribution matches expected distribution")
     else:
         print("Observed distribution does not match expected.", file=sys.stderr)
