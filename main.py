@@ -75,11 +75,11 @@ def chi_square_test(data_count, expected_counts, method):
 
         return chi_square_stat < 16.92
 
-def bar_chart(data_pct):
+def bar_chart(data_pct, method):
     fig, ax = plt.subplots()
     index = [i + 1 for i in range(len(data_pct))]
 
-    fig.canvas.manager.set_window_title('Percentage First Digits')
+    fig.canvas.manager.set_window_title('Percentage {} Digits'.format(method))
     ax.set_title('Data vs Benford Values', fontsize=15)
     ax.set_ylabel('Frequency (%)', fontsize=16)
     ax.set_xticks(index)
@@ -92,7 +92,10 @@ def bar_chart(data_pct):
         ax.text(rect.get_x() + rect.get_width()/2, height,
                 '{:0.1f}'.format(height), ha='center', va='bottom', fontsize=13)
 
-    ax.scatter(index, BENFORD_FIRST, s=150, c='red', zorder=2, label='Benford')
+    if method =="first":
+        ax.scatter(index, BENFORD_FIRST, s=150, c='red', zorder=2, label='Benford {}'.format(method))
+    else:
+        ax.scatter(index, BENFORD_SECOND, s=150, c='red', zorder=2, label='Benford {}'.format(method))
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -138,7 +141,8 @@ def main():
     else:
         print("Observed distribution does not match expected.", file=sys.stderr)
 
-    bar_chart(data_pct)
+    bar_chart(data_pct, "first")
+    bar_chart(second_data_pct, "second")
     sys.exit(0)
 
 
